@@ -1,8 +1,13 @@
 const router = require("express").Router();
 const { checkUsernameExists, validateRoleName } = require('./auth-middleware');
 const { JWT_SECRET } = require("../secrets"); // use this secret!
+const bcrypt = require('bcryptjs');
 
 router.post("/register", validateRoleName, (req, res, next) => {
+  const { username , password } = req.body;
+  const { role_name } = req;
+
+
   /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
