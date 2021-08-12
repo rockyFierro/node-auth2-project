@@ -4,15 +4,15 @@ const User = require('../users/users-model');
 const jwt = require('jsonwebtoken');
 
 const restricted = (req, res, next) => {
-	const token = req.headers.authorization;
+  const token = req.headers.authorization;
 
-	if(!token) return next({ status: 401, message: 'Token required' });
+  if (!token) return next({ status: 401, message: 'Token required' });
 
-  jwt.verify(token, JWT_SECRET,(err, decodedToken)=>{
-    if (err){
-      next({ status: 401, message: 'Token required'});
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      next({ status: 401, message: 'Token required' });
     } else {
-      req.decodedToken = decodedToken; 
+      req.decodedToken = decodedToken;
       next();
     }
   });
@@ -34,7 +34,12 @@ const restricted = (req, res, next) => {
 }
 
 const only = role_name => (req, res, next) => {
-
+  const { role } = req.decodedToken.role_name;
+  if (role_name !== role) {
+    next({ status: 403, message: "This is not for you" });
+  } else {
+    next();
+  }
 
   /*
     If the user does not provide a token in the Authorization header with a role_name
@@ -51,7 +56,7 @@ const only = role_name => (req, res, next) => {
 
 const checkUsernameExists = async (req, res, next) => {
   try {
-    const [user] = await User.findBy({username: req.body.username});
+    const [user] = await User.findBy({ username: req.body.username });
     if (!user) {
       next({
         status: 401,
